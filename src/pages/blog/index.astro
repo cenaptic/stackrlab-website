@@ -1,0 +1,39 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+---
+<Layout title="Blog · STACKr Lab" description="Writing from STACKr Lab.">
+  <main>
+    <header>
+      <a href="/">← STACKr Lab</a>
+      <h1>Blog</h1>
+    </header>
+    <ul>
+      {posts.map((post) => (
+        <li>
+          <a href={`/blog/${post.id}/`}>
+            <time datetime={post.data.pubDate.toISOString()}>
+              {post.data.pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+            </time>
+            <span>{post.data.title}</span>
+          </a>
+        </li>
+      ))}
+      {posts.length === 0 && <li class="empty">No posts yet.</li>}
+    </ul>
+  </main>
+</Layout>
+
+<style>
+  main { max-width: 42rem; margin: 0 auto; padding: 4rem 1.5rem; }
+  header a { color: var(--muted); text-decoration: none; font-size: 0.875rem; }
+  h1 { font-size: 2.5rem; letter-spacing: -0.02em; margin: 1rem 0 2rem; }
+  ul { list-style: none; padding: 0; margin: 0; }
+  li { padding: 0.75rem 0; border-bottom: 1px solid #1f1f22; }
+  li a { display: flex; gap: 1.5rem; text-decoration: none; align-items: baseline; }
+  time { color: var(--muted); font-variant-numeric: tabular-nums; font-size: 0.875rem; min-width: 6.5rem; }
+  .empty { color: var(--muted); }
+</style>

@@ -1,0 +1,45 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+const entries = (await getCollection('changelog'))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const rendered = await Promise.all(
+  entries.map(async (entry) => ({ entry, Content: (await render(entry)).Content }))
+);
+---
+<Layout title="Changelog · STACKr Lab" description="What's new in STACKr Lab.">
+  <main>
+    <header>
+      <a href="/">← STACKr Lab</a>
+      <h1>Changelog</h1>
+    </header>
+    {rendered.map(({ entry, Content }) => (
+      <section>
+        <div class="meta">
+          <span class="version">{entry.data.version}</span>
+          <time datetime={entry.data.date.toISOString()}>
+            {entry.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+          </time>
+        </div>
+        {entry.data.title && <h2>{entry.data.title}</h2>}
+        <Content />
+      </section>
+    ))}
+    {entries.length === 0 && <p class="empty">No releases yet.</p>}
+  </main>
+</Layout>
+
+<style>
+  main { max-width: 42rem; margin: 0 auto; padding: 4rem 1.5rem; }
+  header a { color: var(--muted); text-decoration: none; font-size: 0.875rem; }
+  h1 { font-size: 2.5rem; letter-spacing: -0.02em; margin: 1rem 0 2.5rem; }
+  section { padding: 1.5rem 0; border-top: 1px solid #1f1f22; }
+  .meta { display: flex; gap: 1rem; align-items: baseline; color: var(--muted); font-size: 0.875rem; }
+  .version { color: var(--fg); font-weight: 600; font-variant-numeric: tabular-nums; }
+  h2 { font-size: 1.25rem; margin: 0.5rem 0 1rem; }
+  section :global(ul) { padding-left: 1.25rem; }
+  section :global(li) { margin: 0.25rem 0; }
+  .empty { color: var(--muted); }
+</style>

@@ -1,0 +1,39 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => !data.draft);
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+---
+<Layout title={`${post.data.title} · STACKr Lab`} description={post.data.description}>
+  <main>
+    <a href="/blog/" class="back">← Blog</a>
+    <article>
+      <header>
+        <time datetime={post.data.pubDate.toISOString()}>
+          {post.data.pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+        </time>
+        <h1>{post.data.title}</h1>
+      </header>
+      <Content />
+    </article>
+  </main>
+</Layout>
+
+<style>
+  main { max-width: 42rem; margin: 0 auto; padding: 4rem 1.5rem; }
+  .back { color: var(--muted); text-decoration: none; font-size: 0.875rem; }
+  article header { margin: 1rem 0 2.5rem; }
+  time { color: var(--muted); font-size: 0.875rem; }
+  h1 { font-size: 2.25rem; letter-spacing: -0.02em; margin: 0.5rem 0 0; }
+  article :global(h2) { margin-top: 2rem; }
+  article :global(p) { margin: 1rem 0; }
+  article :global(a) { color: var(--fg); text-decoration: underline; }
+  article :global(code) { background: #1f1f22; padding: 0.1em 0.3em; border-radius: 3px; font-size: 0.9em; }
+  article :global(pre) { background: #1f1f22; padding: 1rem; border-radius: 6px; overflow-x: auto; }
+</style>
