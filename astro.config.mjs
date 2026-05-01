@@ -2,8 +2,12 @@
 import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
+import cloudflare from '@astrojs/cloudflare';
 
 export default defineConfig({
   site: 'https://stackrlab.com',
   integrations: [mdx(), sitemap()],
+  adapter: cloudflare({
+    imageService: 'passthrough',
+  }),
 });
